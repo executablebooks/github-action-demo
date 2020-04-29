@@ -18,12 +18,14 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.7
-    - name: Install Jupyter Book
-      run: |
-        pip install --pre jupyter-book
+
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
+    - name: Install Jupyter Book
+      run: |
+        pip install -U --pre jupyter-book
+
 
     # Build the book
     - name: Build the book
