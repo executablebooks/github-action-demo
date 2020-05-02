@@ -7,3 +7,8 @@ following action:
 ```{literalinclude} .github/workflows/book.yml
 :language: yaml
 ```
+
+and this `requirements.txt` file:
+
+```{literalinclude} requirements.txt
+```
