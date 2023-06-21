@@ -11,18 +11,41 @@ jobs:
   deploy-book:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     # Install dependencies
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v1
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
       with:
-        python-version: 3.7
+        python-version: 3.11
 
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
 
+    - name: Check Julia existence
+      id: check_Julia
+      uses: andstor/file-existence-action@v2
+      with:
+        files: "Project.toml"
+
+    - name: Setup Julia
+      if: steps.check_Julia.outputs.files_exists == 'true'
+      uses: julia-actions/setup-julia@v1
+
+    - name: Install IJulia and Julia dependencies
+      if: steps.check_Julia.outputs.files_exists == 'true'
+      shell: julia --project="" --color=yes {0}
+      run: |
+        import Pkg
+        Pkg.Registry.update()
+        Pkg.add(["IJulia"])
+        import IJulia
+        IJulia.installkernel("Julia", "--project=@.")
+        Pkg.activate(".")
+        Pkg.instantiate()
+        Pkg.resolve()
+        Pkg.precompile()
 
     # Build the book
     - name: Build the book
@@ -31,7 +54,7 @@ jobs:
 
     # Push the book's HTML to github-pages
     - name: GitHub Pages action
-      uses: peaceiris/actions-gh-pages@v3.5.9
+      uses: peaceiris/actions-gh-pages@v3.9.3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./_build/html
